@@ -22,7 +22,7 @@ boolean estado = true;
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
-
+//probando gitbuh
 void setup()
 {
   // initialize serial communication:
