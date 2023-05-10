@@ -18,6 +18,7 @@ boolean estado = true;
 #define longitud_giro 400 // Parametro para el giro en espiral
 #define espera 2000       // Parametro para el tiempo de espera
 #define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
+#define button_pin 11
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
@@ -45,6 +46,17 @@ long funcion_ultrasonido()
   duration = pulseIn(pingPin, HIGH);
   return duration / 29 / 2;
 }
+
+// Método para que el robot realice la espiral
+void espiral(int i, int valor)
+{
+  digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro - i);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera * valor);
+}
+
+// Método para que el robot se pare cada vez que detecte un obstáculo
 void calcularDistancia()
 {
   long distancia = funcion_ultrasonido();
@@ -57,24 +69,58 @@ void calcularDistancia()
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 2);
-    // INTENTO QUE EL SERVO SE GUIRE 180 GRADOS
+    // INTENTO QUE EL SERVO SE GURE 180 GRADOS
     // Posición 90º, lo hacemos dos veces porque se tiene que girar 180 grados
     pwm.setPWM(servo_180, 0, SERVO_90deg);
     delay(2000);
 
     pwm.setPWM(servo_180, 0, SERVO_90deg);
     delay(2000);
-
   }
 }
 
-void espiral(int i, int valor)
+// Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
+void Pulsador()
 {
-  digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro - i);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera * valor);
+  pinMode(button_pin, INPUT);
+  int button_value = digitalRead(button_pin);
+
+  // Cuando el botón está presionado, se de tiene la marcha durante 4 segundos
+  do
+  {
+    // Serial.println("Pressed");
+    pwm.setPWM(servo_left, 0, SERVOSTOP);
+    pwm.setPWM(servo_right, 0, SERVOSTOP);
+    delay(espera * 2);
+
+    // Primera vuelta
+    espiral(200, 150);
+    calcularDistancia();
+    Pulsador();
+    // Segunda vuelta
+    espiral(0, 0);
+    calcularDistancia();
+    Pulsador();
+
+    // Tercera vuelta
+    espiral(50, 15);
+    calcularDistancia();
+    Pulsador();
+
+    // Cuarta vuelta
+    espiral(100, 50);
+    calcularDistancia();
+    Pulsador();
+
+    // Ultima vuelta
+    espiral(150, 100);
+    calcularDistancia();
+    Pulsador();
+
+  } while (button_value == HIGH);
 }
+
+
 
 void loop()
 {
@@ -82,24 +128,29 @@ void loop()
   // primera vuelta
   espiral(0, 0);
   calcularDistancia();
+  Pulsador();
 
   // segunda vuelta
   espiral(50, 15);
   calcularDistancia();
+  Pulsador();
 
   // tercera vuelta
   espiral(100, 50);
   calcularDistancia();
+  Pulsador();
 
   // cuarta vuelta
   espiral(150, 100);
   calcularDistancia();
+  Pulsador();
 
   // ultima vuelta
   espiral(200, 150);
   calcularDistancia();
+  Pulsador();
 
-  // FORMA SIN MODULARIZAR
+  // FORMA SIN PARAMETRIZAR
   /*
     // gira durante 1 segundo con la rueda izquierda a 400
     digitalWrite(green_led, HIGH); // LED verde encendido
