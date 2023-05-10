@@ -19,7 +19,7 @@ boolean estado = true;
 #define espera 2000       // Parametro para el tiempo de espera
 #define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
 #define button_pin 11
-
+//HOLAAAAAAAA
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
 
