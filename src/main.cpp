@@ -75,7 +75,6 @@ void DetectarMancha()
   int valor_IR_left = digitalRead(IR_left); // Leemos la entrada digital 0 donde está conectado el sensor IR izquierdo
   int valor_IR_right = digitalRead(IR_right); // Leemos la entrada digital 1 donde está conectado el sensor IR derecho
 
-
 }
 
 void calcularDistancia()
