@@ -5,6 +5,7 @@
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 boolean estado = true;
+boolean estado2 = false;
 // boolean tiempo = false;
 #define pingPin 5
 #define SERVOMIN 320  // Valor de la longitud mínima del pulso PWM para velocidad máxima en sentido antihorario (valor de 0 a 4096).
@@ -19,7 +20,7 @@ boolean estado = true;
 #define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
 #define button_pin 11
 // definimos variables para el sonido
-/*#define DO 523 // Definimos la frecuencia de cada nota musical
+#define DO 523 // Definimos la frecuencia de cada nota musical
 #define RE 587
 #define MI 659
 #define FA 698
@@ -27,7 +28,7 @@ boolean estado = true;
 #define LA 880
 #define SI 988
 #define DOs 1047
-#define Buzzpin 13 // Definimos el pin al que conectamos el zumbador*/
+#define Buzzpin 13 // Definimos el pin al que conectamos el zumbador
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
@@ -64,6 +65,9 @@ void espiral(int i, int valor)
   delay(espera * valor);
 }
 
+
+
+
 void calcularDistancia()
 {
   long distancia = funcion_ultrasonido();
@@ -80,14 +84,46 @@ void calcularDistancia()
     // INTENTO QUE EL SERVO SE GURE 180 GRADOS
     // Posición 90º, lo hacemos dos veces porque se tiene que girar 180 grados
 
-    pwm.setPWM(servo_left, 0, SERVOSTOP);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera*1);
     pwm.setPWM(servo_left, 0, SERVOMIN);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    estado = false;
+    pwm.setPWM(servo_right, 0, SERVOSTOP);
+    delay(espera*3);
+   
+   //primer while espiral normal
+  /* if(estado){
+      estado = false;
+   }*/
+   //segundo while espiral al reves
+  /*if(!estado2){
+      estado2 = true;  
+   }*/
+   
+   
   }
 }
+
+  // Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
+  void Sonido(){
+  digitalWrite(green_led, LOW);
+  digitalWrite(red_led, LOW);
+  tone(Buzzpin,DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
+     //delay(300); // Retraso de 300 ms para fijar la duración de la nota
+     tone(Buzzpin,RE); // Repetimos para cada nota creando la escala musical
+     delay(300);
+     tone(Buzzpin,MI);
+     delay(300);
+     tone(Buzzpin,FA);
+     delay(300);
+     tone(Buzzpin,SOL);
+     delay(300);
+     tone(Buzzpin,LA);
+     delay(300);
+     tone(Buzzpin,SI);
+     delay(300);
+     tone(Buzzpin,DOs);
+     delay(300);
+     noTone(Buzzpin); // Detenemos la generación de la señal cuadrada
+     delay(300);      // durante 300 ms
+  }
 
 // Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
 void Pulsador()
@@ -95,9 +131,13 @@ void Pulsador()
   pinMode(button_pin, INPUT);
   int button_value = digitalRead(button_pin);
 
+  digitalWrite(green_led, LOW);
+  digitalWrite(red_led, LOW);
+
   // Cuando el botón está presionado, se de tiene la marcha durante 4 segundos
   if (button_value == HIGH){
     estado = false;
+
     // Serial.println("Pressed");
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
@@ -123,8 +163,8 @@ void Pulsador()
     //calcularDistancia();
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
-    delay(espera*4000);
-    // Sonido();
+    delay(espera);
+    Sonido();
     // Método para que el robot se pare cada vez que detecte un obstáculo
 
   } 
@@ -180,27 +220,7 @@ while(estado){
   calcularDistancia();
   Pulsador();
 }
-  // Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
-  /*void Sonido(){
-  tone(Buzzpin,DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
-     delay(300); // Retraso de 300 ms para fijar la duración de la nota
-     tone(Buzzpin,RE); // Repetimos para cada nota creando la escala musical
-     delay(300);
-     tone(Buzzpin,MI);
-     delay(300);
-     tone(Buzzpin,FA);
-     delay(300);
-     tone(Buzzpin,SOL);
-     delay(300);
-     tone(Buzzpin,LA);
-     delay(300);
-     tone(Buzzpin,SI);
-     delay(300);
-     tone(Buzzpin,DOs);
-     delay(300);
-     noTone(Buzzpin); // Detenemos la generación de la señal cuadrada
-     delay(300);      // durante 300 ms
-  }*/
+
 
   // FORMA SIN PARAMETRIZAR
   /*
