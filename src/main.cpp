@@ -80,10 +80,12 @@ void calcularDistancia()
     // INTENTO QUE EL SERVO SE GURE 180 GRADOS
     // Posición 90º, lo hacemos dos veces porque se tiene que girar 180 grados
 
-    pwm.setPWM(servo_180, 0, SERVO_90deg);
-    delay(2000);
-    delay(2000);
-    pwm.setPWM(servo_180, 0, SERVO_90deg);
+    pwm.setPWM(servo_left, 0, SERVOSTOP);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
+    delay(espera*1);
+    pwm.setPWM(servo_left, 0, SERVOMIN);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
+    estado = false;
   }
 }
 
