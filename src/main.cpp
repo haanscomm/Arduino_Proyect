@@ -4,25 +4,34 @@
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-#define pingPin 5
-
 boolean estado = true;
 // boolean tiempo = false;
+#define pingPin 5
 #define SERVOMIN 320  // Valor de la longitud mínima del pulso PWM para velocidad máxima en sentido antihorario (valor de 0 a 4096).
 #define SERVOSTOP 380 // Valor de la longitud del pulso para dentener el servo (valor de 0 a 4096).
 #define SERVOMAX 440
 #define servo_left 0  // Servo izquierdo conectado al canal 0 del PWM shield.
 #define servo_right 1 // Servo derecho conectado al canal 1 del PWM shield.
 #define green_led 9
-#define red_led 5
+#define red_led 12
 #define longitud_giro 400 // Parametro para el giro en espiral
-#define espera 2000       // Parametro para el tiempo de espera
+#define espera 1000       // Parametro para el tiempo de espera
 #define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
 #define button_pin 11
+// definimos variables para el sonido
+/*#define DO 523 // Definimos la frecuencia de cada nota musical
+#define RE 587
+#define MI 659
+#define FA 698
+#define SOL 784
+#define LA 880
+#define SI 988
+#define DOs 1047
+#define Buzzpin 13 // Definimos el pin al que conectamos el zumbador*/
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
-//aangdksf
+
 void setup()
 {
   // initialize serial communication:
@@ -31,6 +40,50 @@ void setup()
   pwm.setPWMFreq(60);
 }
 
+  // Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
+  void Pulsador() {
+    pinMode(button_pin, INPUT);
+    int button_value = digitalRead(button_pin);
+
+    // Cuando el botón está presionado, se de tiene la marcha durante 4 segundos
+    do
+    {
+      // Serial.println("Pressed");
+      pwm.setPWM(servo_left, 0, SERVOSTOP);
+      pwm.setPWM(servo_right, 0, SERVOSTOP);
+      delay(espera * 2);
+
+      // Primera vuelta
+      espiral(200, 150);
+      calcularDistancia();
+      Pulsador();
+      // Segunda vuelta
+      espiral(0, 0);
+      calcularDistancia();
+      Pulsador();
+
+      // Tercera vuelta
+      espiral(50, 15);
+      calcularDistancia();
+      Pulsador();
+
+      // Cuarta vuelta
+      espiral(100, 50);
+      calcularDistancia();
+      Pulsador();
+
+      // Ultima vuelta
+      espiral(150, 100);
+      calcularDistancia();
+      Pulsador();
+      pwm.setPWM(servo_left, 0, SERVOSTOP);
+      pwm.setPWM(servo_right, 0, SERVOSTOP);
+     // Sonido();
+
+
+
+    } while (button_value == HIGH);
+  }
 // Funcion ultrasonido
 long funcion_ultrasonido()
 {
@@ -68,87 +121,84 @@ void calcularDistancia()
   {
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
-    delay(espera * 2);
-    // INTENTO QUE EL SERVO SE GURE 180 GRADOS
+    delay(espera * 4);
+
+    /*// INTENTO QUE EL SERVO SE GURE 180 GRADOS
     // Posición 90º, lo hacemos dos veces porque se tiene que girar 180 grados
     pwm.setPWM(servo_180, 0, SERVO_90deg);
     delay(2000);
 
     pwm.setPWM(servo_180, 0, SERVO_90deg);
-    delay(2000);
+    delay(2000);*/
   }
 }
-
-// Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
-void Pulsador()
-{
-  pinMode(button_pin, INPUT);
-  int button_value = digitalRead(button_pin);
-
-  // Cuando el botón está presionado, se de tiene la marcha durante 4 segundos
-  do
-  {
-    // Serial.println("Pressed");
-    pwm.setPWM(servo_left, 0, SERVOSTOP);
-    pwm.setPWM(servo_right, 0, SERVOSTOP);
-    delay(espera * 2);
-
-    // Primera vuelta
-    espiral(200, 150);
-    calcularDistancia();
-    Pulsador();
-    // Segunda vuelta
-    espiral(0, 0);
-    calcularDistancia();
-    Pulsador();
-
-    // Tercera vuelta
-    espiral(50, 15);
-    calcularDistancia();
-    Pulsador();
-
-    // Cuarta vuelta
-    espiral(100, 50);
-    calcularDistancia();
-    Pulsador();
-
-    // Ultima vuelta
-    espiral(150, 100);
-    calcularDistancia();
-    Pulsador();
-
-  } while (button_value == HIGH);
-}
-
-
 
 void loop()
 {
 
   // primera vuelta
-  espiral(0, 0);
+  espiral(0, 1);
   calcularDistancia();
   Pulsador();
 
   // segunda vuelta
-  espiral(50, 15);
+  espiral(10, 2);
   calcularDistancia();
-  Pulsador();
+  // Pulsador();
 
   // tercera vuelta
-  espiral(100, 50);
+  espiral(20, 3);
   calcularDistancia();
-  Pulsador();
+  // Pulsador();
 
   // cuarta vuelta
-  espiral(150, 100);
+  espiral(30, 4);
   calcularDistancia();
-  Pulsador();
+  // Pulsador();
 
-  // ultima vuelta
-  espiral(200, 150);
+  // quinta vuelta
+  espiral(40, 5);
   calcularDistancia();
-  Pulsador();
+  // Pulsador();
+
+  // sexta vuelta
+  espiral(50, 6);
+  calcularDistancia();
+
+  // septima vuelta
+  espiral(60, 7);
+  calcularDistancia();
+
+// octava vuelta
+  espiral(70, 8);
+  calcularDistancia();
+
+// última vuelta
+  espiral(80, 9);
+  calcularDistancia();
+
+  // Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
+  /*void Sonido(){
+  tone(Buzzpin,DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
+     delay(300); // Retraso de 300 ms para fijar la duración de la nota
+     tone(Buzzpin,RE); // Repetimos para cada nota creando la escala musical
+     delay(300);
+     tone(Buzzpin,MI);
+     delay(300);
+     tone(Buzzpin,FA);
+     delay(300);
+     tone(Buzzpin,SOL);
+     delay(300);
+     tone(Buzzpin,LA);
+     delay(300);
+     tone(Buzzpin,SI);
+     delay(300);
+     tone(Buzzpin,DOs);
+     delay(300);
+     noTone(Buzzpin); // Detenemos la generación de la señal cuadrada
+     delay(300);      // durante 300 ms
+  }*/
+
 
   // FORMA SIN PARAMETRIZAR
   /*
