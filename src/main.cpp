@@ -99,16 +99,21 @@ void Parpadeo()
     delay(espera);
     digitalWrite(red_led, LOW);
     delay(espera);
+    pwm.setPWM(servo_left, 0, SERVOMIN);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
   }
-  else
+else if (red_led == HIGH)
   {
-    for (int i = 0; i < maxParpadeo; i++)
-    {
-      digitalWrite(green_led, HIGH);
-      delay(espera);
-      digitalWrite(green_led, LOW);
-      delay(espera);
-    }
+    digitalWrite(green_led, HIGH);
+    delay(espera);
+    digitalWrite(green_led, LOW);
+    delay(espera);
+    digitalWrite(green_led, HIGH);
+    delay(espera);
+    digitalWrite(green_led, LOW);
+    delay(espera);
+    pwm.setPWM(servo_left, 0, SERVOMIN);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
   }
 }
 
@@ -127,7 +132,7 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
     delay(espera * 4);
     Sonido();
     Parpadeo();
-    pwm.setPWM(servo_right, 0, SERVOMIN);
+    pwm.setPWM(servo_left, 0, SERVOMIN);
     pwm.setPWM(servo_right, 0, SERVOMAX);
   }
 }
@@ -223,8 +228,8 @@ void loop()
     //  primera vuelta
     espiral(0, 1);
     calcularDistancia();
-    Pulsador();
    DetectarMancha();
+    Pulsador();
 
    // segunda vuelta
     espiral(10, 2);
