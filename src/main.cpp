@@ -77,6 +77,14 @@ void DetectarMancha()
 
 }
 
+void DetectarLuz(){
+   int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
+  Serial.print("\nLight: "); // Imprime el texto "Light_left: "
+  Serial.print(light); // Imprime el valor del sensor de luz izquierdo
+
+  delay(200); // Retraso entre lecturas de 200 ms
+}
+
 void calcularDistancia()
 {
   long distancia = funcion_ultrasonido();
