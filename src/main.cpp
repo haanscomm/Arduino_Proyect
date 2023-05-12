@@ -23,14 +23,12 @@ boolean estado2 = false;
 #define DO 523 // Definimos la frecuencia de cada nota musical
 #define RE 587
 #define MI 659
-#define FA 698
-#define SOL 784
-#define LA 880
-#define SI 988
-#define DOs 1047
+
 #define Buzzpin 13 // Definimos el pin al que conectamos el zumbador
 #define IR_left 2  // Sensor IR izquierdo conectado al pin digital 2
 #define IR_right 3 // Sensor IR derecho conectado al pin digital 3
+
+#define maxParpadeo 4
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
@@ -67,23 +65,80 @@ void espiral(int i, int valor)
   delay(espera * valor);
 }
 
-void DetectarMancha()
+// Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
+void Sonido()
+{
+  digitalWrite(green_led, LOW);
+  digitalWrite(red_led, LOW);
+  tone(Buzzpin, DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
+  delay(espera * 4);
+  // delay(300); // Retraso de 300 ms para fijar la duración de la nota
+  tone(Buzzpin, RE); // Repetimos para cada nota creando la escala musical
+  delay(espera * 4);
+  tone(Buzzpin, MI);
+  delay(espera * 4);
+  tone(Buzzpin, DO);
+  delay(espera * 4);
+  tone(Buzzpin, RE);
+  delay(espera * 4);
+  tone(Buzzpin, MI);
+  delay(espera * 4);
+  noTone(Buzzpin);     // Detenemos la generación de la señal cuadrada
+  delay(espera * 0.3); // durante 300 ms
+}
+
+void Parpadeo()
+{
+  if (red_led == HIGH)
+  {
+    digitalWrite(red_led, HIGH);
+    delay(espera);
+    digitalWrite(red_led, LOW);
+    delay(espera);
+    digitalWrite(red_led, HIGH);
+    delay(espera);
+    digitalWrite(red_led, LOW);
+    delay(espera);
+  }
+  else
+  {
+    for (int i = 0; i < maxParpadeo; i++)
+    {
+      digitalWrite(green_led, HIGH);
+      delay(espera);
+      digitalWrite(green_led, LOW);
+      delay(espera);
+    }
+  }
+}
+
+void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
 {
   pinMode(IR_left, INPUT);  // Configuramos el pin 2 donde se conectan los sensor IR izquierdo como INPUT
   pinMode(IR_right, INPUT); // Configuramos el pin 3 donde se conectan los sensor IR izquierdo como INPUT
 
-  int valor_IR_left = digitalRead(IR_left); // Leemos la entrada digital 0 donde está conectado el sensor IR izquierdo
+  int valor_IR_left = digitalRead(IR_left);   // Leemos la entrada digital 0 donde está conectado el sensor IR izquierdo
   int valor_IR_right = digitalRead(IR_right); // Leemos la entrada digital 1 donde está conectado el sensor IR derecho
 
+  if (valor_IR_left == 1 && valor_IR_right == 1)
+  {
+    pwm.setPWM(servo_left, 0, SERVOSTOP);
+    pwm.setPWM(servo_right, 0, SERVOSTOP);
+    delay(espera * 4);
+    Sonido();
+    Parpadeo();
+    pwm.setPWM(servo_right, 0, SERVOMIN);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
+  }
 }
 
-void DetectarLuz(){
+/*void DetectarLuz(){
    int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
   Serial.print("\nLight: "); // Imprime el texto "Light_left: "
   Serial.print(light); // Imprime el valor del sensor de luz izquierdo
 
   delay(200); // Retraso entre lecturas de 200 ms
-}
+}*/
 
 void calcularDistancia()
 {
@@ -114,31 +169,6 @@ void calcularDistancia()
         estado2 = true;
      }*/
   }
-}
-
-// Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
-void Sonido()
-{
-  digitalWrite(green_led, LOW);
-  digitalWrite(red_led, LOW);
-  tone(Buzzpin, DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
-  // delay(300); // Retraso de 300 ms para fijar la duración de la nota
-  tone(Buzzpin, RE); // Repetimos para cada nota creando la escala musical
-  delay(espera * 4);
-  tone(Buzzpin, MI);
-  delay(espera * 4);
-  tone(Buzzpin, FA);
-  delay(espera * 4);
-  tone(Buzzpin, SOL);
-  delay(espera * 4);
-  tone(Buzzpin, LA);
-  delay(espera * 4);
-  tone(Buzzpin, SI);
-  delay(espera * 4);
-  tone(Buzzpin, DOs);
-  delay(espera * 4);
-  noTone(Buzzpin); // Detenemos la generación de la señal cuadrada
-  delay(300);      // durante 300 ms
 }
 
 // Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
@@ -188,54 +218,63 @@ void Pulsador()
 
 void loop()
 {
-
   while (estado)
   {
-    // primera vuelta
+    //  primera vuelta
     espiral(0, 1);
     calcularDistancia();
     Pulsador();
+    DetectarMancha()
 
-    // segunda vuelta
+        // segunda vuelta
     espiral(10, 2);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // tercera vuelta
+        // tercera vuelta
     espiral(20, 3);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // cuarta vuelta
+        // cuarta vuelta
     espiral(30, 4);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // quinta vuelta
+        // quinta vuelta
     espiral(40, 5);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // sexta vuelta
+        // sexta vuelta
     espiral(50, 6);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // septima vuelta
+        // septima vuelta
     espiral(60, 7);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // octava vuelta
+        // octava vuelta
     espiral(70, 8);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
 
-    // última vuelta
+        // última vuelta
     espiral(80, 9);
     calcularDistancia();
     Pulsador();
+    DetectarMancha();
   }
+}
 
   // FORMA SIN PARAMETRIZAR
   /*
