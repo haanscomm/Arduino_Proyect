@@ -224,9 +224,9 @@ void loop()
     espiral(0, 1);
     calcularDistancia();
     Pulsador();
-    DetectarMancha()
+   DetectarMancha();
 
-        // segunda vuelta
+   // segunda vuelta
     espiral(10, 2);
     calcularDistancia();
     Pulsador();
@@ -341,7 +341,7 @@ void loop()
         pwm.setPWM(servo_right, 0, SERVOMAX);
         delay(9000);
       */
-}
+
 /*long distancia = funcion_ultrasonido();
 // if (estado)
 {
