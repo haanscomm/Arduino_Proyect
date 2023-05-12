@@ -125,7 +125,7 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
   int valor_IR_left = digitalRead(IR_left);   // Leemos la entrada digital 0 donde está conectado el sensor IR izquierdo
   int valor_IR_right = digitalRead(IR_right); // Leemos la entrada digital 1 donde está conectado el sensor IR derecho
 
-  if (valor_IR_left == 1 && valor_IR_right == 1)
+  if (valor_IR_left == 0 || valor_IR_right == 0)
   {
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
@@ -137,13 +137,23 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
   }
 }
 
-/*void DetectarLuz(){
+void DetectarLuz(){
+
    int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
-  Serial.print("\nLight: "); // Imprime el texto "Light_left: "
-  Serial.print(light); // Imprime el valor del sensor de luz izquierdo
+   if(light <= 0){
+    pwm.setPWM(servo_left, 0, SERVOSTOP);
+    pwm.setPWM(servo_right, 0, SERVOSTOP);
+    delay(espera * 2);
+    digitalWrite(red_led, HIGH);
+    digitalWrite(green_led, HIGH);
+    pwm.setPWM(servo_left, 0, SERVOMIN);
+    pwm.setPWM(servo_right, 0, SERVOMAX);
+   }
+  /*Serial.print("\nLight: "); // Imprime el texto "Light_left: "
+  Serial.print(light); // Imprime el valor del sensor de luz izquierdo*/
 
   delay(200); // Retraso entre lecturas de 200 ms
-}*/
+}
 
 void calcularDistancia()
 {
@@ -226,24 +236,28 @@ void loop()
   while (estado)
   {
     //  primera vuelta
+    DetectarLuz();
     espiral(0, 1);
     calcularDistancia();
-   DetectarMancha();
+    DetectarMancha();
     Pulsador();
 
    // segunda vuelta
+    DetectarLuz();
     espiral(10, 2);
     calcularDistancia();
     Pulsador();
     DetectarMancha();
 
         // tercera vuelta
+    DetectarLuz();
     espiral(20, 3);
     calcularDistancia();
     Pulsador();
     DetectarMancha();
 
         // cuarta vuelta
+    DetectarLuz();
     espiral(30, 4);
     calcularDistancia();
     Pulsador();
