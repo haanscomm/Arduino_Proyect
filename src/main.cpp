@@ -16,6 +16,7 @@ boolean estado2 = false;
 #define green_led 9
 #define red_led 12
 #define longitud_giro 400 // Parametro para el giro en espiral
+#define longitudinversa_giro 300
 #define espera 1000       // Parametro para el tiempo de espera
 #define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
 #define button_pin 11
@@ -62,6 +63,13 @@ void espiral(int i, int valor)
   digitalWrite(green_led, HIGH); // LED verde encendido
   pwm.setPWM(servo_left, 0, longitud_giro - i);
   pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera * valor);
+}
+
+void espiral_inversa(int i, int valor){
+  digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, SERVOMIN);
+  pwm.setPWM(servo_right, 0, longitud_giro - i);
   delay(espera * valor);
 }
 
@@ -140,18 +148,51 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
 void DetectarLuz(){
 
    int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
-   if(light <= 0){
-    Serial.println(light);
+  Serial.print("\nLight: ");
+  Serial.print(light);
+  delay(200);
+   if(light <= 51){
+
+    // El robot para
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 2);
+
+    //Encendemos los dos leds
     digitalWrite(red_led, HIGH);
     digitalWrite(green_led, HIGH);
+    delay(espera * 3);
+
+    //El robot sigue hacia delante
     pwm.setPWM(servo_left, 0, SERVOMIN);
     pwm.setPWM(servo_right, 0, SERVOMAX);
+    delay(espera * 1);
+
+    // tercera vuelta
+    espiral(20, 3);
+
+        // cuarta vuelta
+    espiral(30, 4);
+ 
+
+        // quinta vuelta
+    espiral(40, 5);
+
+        // sexta vuelta
+    espiral(50, 6);
+
+        // septima vuelta
+    espiral(60, 7);
+
+        // octava vuelta
+    espiral(70, 8);
+
+    // última vuelta
+    espiral(80, 9);
+
+    
    }
-  /*Serial.print("\nLight: "); // Imprime el texto "Light_left: "
-  Serial.print(light); // Imprime el valor del sensor de luz izquierdo*/
+
 
   delay(200); // Retraso entre lecturas de 200 ms
 }
@@ -175,6 +216,11 @@ void calcularDistancia()
     pwm.setPWM(servo_left, 0, SERVOMIN);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 3);
+
+    espiral_inversa(10, 2);
+    espiral_inversa(20, 3);
+    espiral_inversa(30, 4);
+    espiral_inversa(40, 5);
 
     // primer while espiral normal
     /* if(estado){
@@ -240,7 +286,7 @@ void loop()
     DetectarLuz();
     espiral(0, 1);
     calcularDistancia();
-    DetectarMancha();
+    //DetectarMancha();
     Pulsador();
 
    // segunda vuelta
@@ -248,51 +294,51 @@ void loop()
     espiral(10, 2);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // tercera vuelta
     DetectarLuz();
     espiral(20, 3);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // cuarta vuelta
     DetectarLuz();
     espiral(30, 4);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // quinta vuelta
     espiral(40, 5);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // sexta vuelta
     espiral(50, 6);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // septima vuelta
     espiral(60, 7);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // octava vuelta
     espiral(70, 8);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
 
         // última vuelta
     espiral(80, 9);
     calcularDistancia();
     Pulsador();
-    DetectarMancha();
+    //DetectarMancha();
   }
 }
 
