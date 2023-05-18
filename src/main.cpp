@@ -34,13 +34,7 @@ boolean estado2 = false;
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
 
-void setup()
-{
-  // initialize serial communication:
-  Serial.begin(9600);
-  pwm.begin();
-  pwm.setPWMFreq(60);
-}
+
 
 long funcion_ultrasonido()
 {
@@ -56,47 +50,6 @@ long funcion_ultrasonido()
   duration = pulseIn(pingPin, HIGH);
   return duration / 29 / 2;
 }
-
-// Método para que el robot realice la espiral
-void espiral(int i, int valor)
-{
-  digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro - i);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera * valor);
-}
-
-void espiral_inversa(int i, int valor)
-{
-  digitalWrite(red_led, HIGH); // LED rojo encendido
-
-  pwm.setPWM(servo_left, 0, SERVOMIN);
-  pwm.setPWM(servo_right, 0, longitudinversa_giro + i);
-  delay(espera * valor);
-}
-
-// Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
-void Sonido()
-{
-  digitalWrite(green_led, LOW);
-  digitalWrite(red_led, LOW);
-  tone(Buzzpin, DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
-  delay(espera * 4);
-  // delay(300); // Retraso de 300 ms para fijar la duración de la nota
-  tone(Buzzpin, RE); // Repetimos para cada nota creando la escala musical
-  delay(espera * 4);
-  tone(Buzzpin, MI);
-  delay(espera * 4);
-  tone(Buzzpin, DO);
-  delay(espera * 4);
-  tone(Buzzpin, RE);
-  delay(espera * 4);
-  tone(Buzzpin, MI);
-  delay(espera * 4);
-  noTone(Buzzpin);     // Detenemos la generación de la señal cuadrada
-  delay(espera * 0.3); // durante 300 ms
-}
-
 void Parpadeo()
 {
   if (red_led == HIGH)
@@ -126,6 +79,47 @@ void Parpadeo()
     pwm.setPWM(servo_right, 0, SERVOMAX);
   }
 }
+
+// Método para que el robot realice la espiral
+void espiral(int i, int valor)
+{
+  digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro - i);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera * valor);
+}
+
+void espiral_inversa(int i, int valor)
+{
+  digitalWrite(red_led, HIGH); // LED rojo encendido
+
+  pwm.setPWM(servo_left, 0, SERVOMIN);
+  pwm.setPWM(servo_right, 0, longitudinversa_giro + i);
+  delay(espera * valor);
+}
+
+// Método para que el robot haga sonidos cuando acabe la espiral en el método Pulsador
+void Sonido()
+{
+  digitalWrite(green_led, LOW);
+  digitalWrite(red_led, LOW);
+  tone(Buzzpin, DO); // Mediante la función tone() indicamos el pin de salida y la frecuencia de la señal cuadrada
+  delay(espera * 3);
+  // delay(300); // Retraso de 300 ms para fijar la duración de la nota
+  tone(Buzzpin, RE); // Repetimos para cada nota creando la escala musical
+  delay(espera * 3);
+  tone(Buzzpin, MI);
+  delay(espera * 3);
+  tone(Buzzpin, DO);
+  delay(espera * 3);
+  tone(Buzzpin, RE);
+  delay(espera * 3);
+  tone(Buzzpin, MI);
+  delay(espera * 3);
+  noTone(Buzzpin);     // Detenemos la generación de la señal cuadrada
+  delay(espera * 0.3); // durante 300 ms
+}
+
 
 void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
 {
@@ -252,7 +246,22 @@ void Pulsador()
     // Método para que el robot se pare cada vez que detecte un obstáculo
   }
 }
-// Funcion ultrasonido
+
+void setup()
+{
+  // initialize serial communication:
+  Serial.begin(9600);
+  pwm.begin();
+  pwm.setPWMFreq(60);
+  //pinMode(button_pin, INPUT);
+
+  // Interupción para el pulsador
+  attachInterrupt(digitalPinToInterrupt(button_pin), Pulsador, HIGH);
+  //Interrupción del sensor izq
+  attachInterrupt(digitalPinToInterrupt(IR_left), DetectarLuz, HIGH);
+  //Interrupción del sensor drcho
+  attachInterrupt(digitalPinToInterrupt(IR_right), DetectarLuz, HIGH);
+}
 
 void loop()
 {
