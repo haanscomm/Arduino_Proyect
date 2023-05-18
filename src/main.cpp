@@ -16,9 +16,9 @@ boolean estado2 = false;
 #define green_led 9
 #define red_led 12
 #define longitud_giro 400 // Parametro para el giro en espiral
-#define longitudinversa_giro 300
-#define espera 1000       // Parametro para el tiempo de espera
-#define SERVO_90deg 420   // Servo a 90º (sensor de ultrasonido mirando hace delante).
+#define longitudinversa_giro 330
+#define espera 1000     // Parametro para el tiempo de espera
+#define SERVO_90deg 420 // Servo a 90º (sensor de ultrasonido mirando hace delante).
 #define button_pin 11
 // definimos variables para el sonido
 #define DO 523 // Definimos la frecuencia de cada nota musical
@@ -66,10 +66,12 @@ void espiral(int i, int valor)
   delay(espera * valor);
 }
 
-void espiral_inversa(int i, int valor){
-  digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, SERVOMIN);
-  pwm.setPWM(servo_right, 0, longitud_giro - i);
+void espiral_inversa(int i, int valor)
+{
+  digitalWrite(red_led, HIGH); // LED rojo encendido
+
+  pwm.setPWM(servo_left, 0, SERVOMAX);
+  pwm.setPWM(servo_right, 0, longitudinversa_giro + i);
   delay(espera * valor);
 }
 
@@ -110,7 +112,7 @@ void Parpadeo()
     pwm.setPWM(servo_left, 0, SERVOMIN);
     pwm.setPWM(servo_right, 0, SERVOMAX);
   }
-else if (red_led == HIGH)
+  else if (green_led == HIGH)
   {
     digitalWrite(green_led, HIGH);
     delay(espera);
@@ -145,54 +147,35 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
   }
 }
 
-void DetectarLuz(){
+void DetectarLuz()
+{
 
-   int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
+  int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
   Serial.print("\nLight: ");
   Serial.print(light);
   delay(200);
-   if(light <= 51){
+  if (light <= 51)
+  {
 
     // El robot para
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 2);
 
-    //Encendemos los dos leds
+    // Encendemos los dos leds
     digitalWrite(red_led, HIGH);
     digitalWrite(green_led, HIGH);
     delay(espera * 3);
 
-    //El robot sigue hacia delante
-    pwm.setPWM(servo_left, 0, SERVOMIN);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera * 1);
-
     // tercera vuelta
-    espiral(20, 3);
+    espiral(40, 4);
 
-        // cuarta vuelta
-    espiral(30, 4);
- 
+    // cuarta vuelta
+    espiral(50, 5);
 
-        // quinta vuelta
-    espiral(40, 5);
-
-        // sexta vuelta
-    espiral(50, 6);
-
-        // septima vuelta
-    espiral(60, 7);
-
-        // octava vuelta
-    espiral(70, 8);
-
-    // última vuelta
-    espiral(80, 9);
-
-    
-   }
-
+    // quinta vuelta
+    espiral(60, 6);
+  }
 
   delay(200); // Retraso entre lecturas de 200 ms
 }
@@ -217,10 +200,10 @@ void calcularDistancia()
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 3);
 
-    espiral_inversa(10, 2);
-    espiral_inversa(20, 3);
-    espiral_inversa(30, 4);
-    espiral_inversa(40, 5);
+    espiral_inversa(50, 6);
+    espiral_inversa(40, 4);
+    espiral_inversa(30, 2);
+    espiral_inversa(20, 1);
 
     // primer while espiral normal
     /* if(estado){
@@ -286,127 +269,132 @@ void loop()
     DetectarLuz();
     espiral(0, 1);
     calcularDistancia();
-    //DetectarMancha();
+   // DetectarMancha();
     Pulsador();
 
-   // segunda vuelta
+    // segunda vuelta
     DetectarLuz();
     espiral(10, 2);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // tercera vuelta
+    // tercera vuelta
     DetectarLuz();
     espiral(20, 3);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // cuarta vuelta
+    // cuarta vuelta
     DetectarLuz();
     espiral(30, 4);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // quinta vuelta
+    // quinta vuelta
+    DetectarLuz();
     espiral(40, 5);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // sexta vuelta
+    // sexta vuelta
+    DetectarLuz();
     espiral(50, 6);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // septima vuelta
+    // septima vuelta
+    DetectarLuz();
     espiral(60, 7);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // octava vuelta
+    // octava vuelta
+    DetectarLuz();
     espiral(70, 8);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
 
-        // última vuelta
+    // última vuelta
+    DetectarLuz();
     espiral(80, 9);
     calcularDistancia();
     Pulsador();
-    //DetectarMancha();
+    // DetectarMancha();
   }
 }
 
-  // FORMA SIN PARAMETRIZAR
-  /*
-    // gira durante 1 segundo con la rueda izquierda a 400
-    digitalWrite(green_led, HIGH); // LED verde encendido
-    pwm.setPWM(servo_left, 0, longitud_giro);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera);
-    calcularDistancia();
+// FORMA SIN PARAMETRIZAR
+/*
+  // gira durante 1 segundo con la rueda izquierda a 400
+  digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera);
+  calcularDistancia();
 
-    // gira durante 2 segundos y la rueda izquierda con 390 de velocidad
-    // digitalWrite(green_led, HIGH);
-    pwm.setPWM(servo_left, 0, longitud_giro-50);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera*15);
-    calcularDistancia();
+  // gira durante 2 segundos y la rueda izquierda con 390 de velocidad
+  // digitalWrite(green_led, HIGH);
+  pwm.setPWM(servo_left, 0, longitud_giro-50);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera*15);
+  calcularDistancia();
 
-    // gira durante 3 segundos y la rueda izquierda con 380 de velocidad
-    // digitalWrite(green_led, HIGH); // LED verde encendido
-    pwm.setPWM(servo_left, 0, longitud_giro-100);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera*50);//100000
-    calcularDistancia();
+  // gira durante 3 segundos y la rueda izquierda con 380 de velocidad
+  // digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro-100);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera*50);//100000
+  calcularDistancia();
 
-    // gira durante 4 segundos y la rueda izquierda con 370 de velocidad
-    // digitalWrite(green_led, HIGH); // LED verde encendido
-    pwm.setPWM(servo_left, 0, longitud_giro-150);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera*100);
-    calcularDistancia();
+  // gira durante 4 segundos y la rueda izquierda con 370 de velocidad
+  // digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro-150);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera*100);
+  calcularDistancia();
 
-    // gira durante 5 segundos y la rueda izquierda con 360 de velocidad
-    // digitalWrite(green_led, HIGH); // LED verde encendido
-    pwm.setPWM(servo_left, 0, longitud_giro-200);
-    pwm.setPWM(servo_right, 0, SERVOMAX);
-    delay(espera*150);
-    //delay(espera*400) 800000 o yo pondria mejor espera*150 = 300.000
-    calcularDistancia();
+  // gira durante 5 segundos y la rueda izquierda con 360 de velocidad
+  // digitalWrite(green_led, HIGH); // LED verde encendido
+  pwm.setPWM(servo_left, 0, longitud_giro-200);
+  pwm.setPWM(servo_right, 0, SERVOMAX);
+  delay(espera*150);
+  //delay(espera*400) 800000 o yo pondria mejor espera*150 = 300.000
+  calcularDistancia();
 
 
+  */
+/*
+      // gira durante 6 segundos y la rueda izquierda con 350 de velocidad
+      // digitalWrite(green_led, HIGH); // LED verde encendido
+      pwm.setPWM(servo_left, 0, 350);
+      pwm.setPWM(servo_right, 0, SERVOMAX);
+      delay(6000);
+
+      // gira durante 7 segundos y la rueda izquierda con 340 de velocidad
+      // digitalWrite(green_led, HIGH); // LED verde encendido
+      pwm.setPWM(servo_left, 0, 340);
+      pwm.setPWM(servo_right, 0, SERVOMAX);
+      delay(7000);
+
+      // gira durante 8 segundos y la rueda izquierda con 330 de velocidad
+      // digitalWrite(green_led, HIGH); // LED verde encendido
+      pwm.setPWM(servo_left, 0, 330);
+      pwm.setPWM(servo_right, 0, SERVOMAX);
+      delay(8000);
+
+      // gira durante 9 segundos y la rueda izquierda con 320 de velocidad
+      // digitalWrite(green_led, HIGH); // LED verde encendido
+      pwm.setPWM(servo_left, 0, 320);
+      pwm.setPWM(servo_right, 0, SERVOMAX);
+      delay(9000);
     */
-  /*
-        // gira durante 6 segundos y la rueda izquierda con 350 de velocidad
-        // digitalWrite(green_led, HIGH); // LED verde encendido
-        pwm.setPWM(servo_left, 0, 350);
-        pwm.setPWM(servo_right, 0, SERVOMAX);
-        delay(6000);
-
-        // gira durante 7 segundos y la rueda izquierda con 340 de velocidad
-        // digitalWrite(green_led, HIGH); // LED verde encendido
-        pwm.setPWM(servo_left, 0, 340);
-        pwm.setPWM(servo_right, 0, SERVOMAX);
-        delay(7000);
-
-        // gira durante 8 segundos y la rueda izquierda con 330 de velocidad
-        // digitalWrite(green_led, HIGH); // LED verde encendido
-        pwm.setPWM(servo_left, 0, 330);
-        pwm.setPWM(servo_right, 0, SERVOMAX);
-        delay(8000);
-
-        // gira durante 9 segundos y la rueda izquierda con 320 de velocidad
-        // digitalWrite(green_led, HIGH); // LED verde encendido
-        pwm.setPWM(servo_left, 0, 320);
-        pwm.setPWM(servo_right, 0, SERVOMAX);
-        delay(9000);
-      */
 
 /*long distancia = funcion_ultrasonido();
 // if (estado)
