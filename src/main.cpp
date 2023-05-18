@@ -5,7 +5,8 @@
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 boolean estado = true;
-boolean estado2 = false;
+boolean pulsar = false;
+boolean mancha = false;
 // boolean tiempo = false;
 #define pingPin 5
 #define SERVOMIN 320  // Valor de la longitud mínima del pulso PWM para velocidad máxima en sentido antihorario (valor de 0 a 4096).
@@ -33,8 +34,6 @@ boolean estado2 = false;
 
 /***   Variables Globales   ***/
 const int servo_180 = 2; // Servo conectado al canal 2 del PWM shield.
-
-
 
 long funcion_ultrasonido()
 {
@@ -84,6 +83,7 @@ void Parpadeo()
 void espiral(int i, int valor)
 {
   digitalWrite(green_led, HIGH); // LED verde encendido
+  digitalWrite(red_led, LOW); // LED rojo apagado
   pwm.setPWM(servo_left, 0, longitud_giro - i);
   pwm.setPWM(servo_right, 0, SERVOMAX);
   delay(espera * valor);
@@ -120,8 +120,11 @@ void Sonido()
   delay(espera * 0.3); // durante 300 ms
 }
 
+/*void on_Mancha(){
+  mancha = !mancha;
+}*/
 
-void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
+void DetectarMancha() // cero = negro, uno = blanco
 {
   pinMode(IR_left, INPUT);  // Configuramos el pin 2 donde se conectan los sensor IR izquierdo como INPUT
   pinMode(IR_right, INPUT); // Configuramos el pin 3 donde se conectan los sensor IR izquierdo como INPUT
@@ -134,7 +137,12 @@ void DetectarMancha() // cero cuando no detecta la mancha y 1 cuando la detecta
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 4);
-    Sonido();
+    tone(Buzzpin, MI);
+    delay(espera * 3);
+    tone(Buzzpin, DO);
+    delay(espera * 3);
+    tone(Buzzpin, RE);
+    noTone(Buzzpin);  
     Parpadeo();
     pwm.setPWM(servo_left, 0, SERVOMIN);
     pwm.setPWM(servo_right, 0, SERVOMAX);
@@ -145,9 +153,6 @@ void DetectarLuz()
 {
 
   int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
-  Serial.print("\nLight: ");
-  Serial.print(light);
-  delay(200);
   if (light <= 51)
   {
 
@@ -196,25 +201,28 @@ void calcularDistancia()
 
     espiral_inversa(20, 2);
     espiral_inversa(40, 4);
+    DetectarMancha();
     espiral_inversa(60, 6);
     espiral_inversa(80, 8);
-    //espiral_inversa(100, 10);
-
+    DetectarMancha();
+        // espiral_inversa(100, 10);
   }
 }
 
 // Método para que el robot se pare 4 segundos cuando pulsamos el botón, que describa una espiral hasta el centro y se detenga
-void Pulsador()
+void on_Pulsador()
 {
-  pinMode(button_pin, INPUT);
-  int button_value = digitalRead(button_pin);
+  pulsar = !pulsar;
+}
 
-  digitalWrite(green_led, LOW);
-  digitalWrite(red_led, LOW);
+
+void Pulsador(){
+    pinMode(button_pin, INPUT);
+   int button_value = digitalRead(button_pin);
 
   // Cuando el botón está presionado, se de tiene la marcha durante 4 segundos
-  if (button_value == HIGH)
-  {
+    digitalWrite(green_led, LOW);
+    digitalWrite(red_led, LOW);
     estado = false;
 
     // Serial.println("Pressed");
@@ -223,28 +231,20 @@ void Pulsador()
     delay(espera * 4);
 
     espiral(50, 5);
-    // calcularDistancia();
 
     espiral(40, 5);
-    // calcularDistancia();
 
     espiral(30, 4);
-    // calcularDistancia();
 
     espiral(20, 3);
-    // calcularDistancia();
 
     espiral(10, 2);
-    // calcularDistancia();
 
-    // espiral(0, 1);
-    // calcularDistancia();
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera);
     Sonido();
-    // Método para que el robot se pare cada vez que detecte un obstáculo
-  }
+ 
 }
 
 void setup()
@@ -253,174 +253,100 @@ void setup()
   Serial.begin(9600);
   pwm.begin();
   pwm.setPWMFreq(60);
-  //pinMode(button_pin, INPUT);
+  // pinMode(button_pin, INPUT);
 
   // Interupción para el pulsador
-  attachInterrupt(digitalPinToInterrupt(button_pin), Pulsador, HIGH);
-  //Interrupción del sensor izq
-  attachInterrupt(digitalPinToInterrupt(IR_left), DetectarLuz, HIGH);
-  //Interrupción del sensor drcho
-  attachInterrupt(digitalPinToInterrupt(IR_right), DetectarLuz, HIGH);
+  attachInterrupt(digitalPinToInterrupt(button_pin), on_Pulsador, RISING);
+  // Interrupción del sensor izq
+  attachInterrupt(digitalPinToInterrupt(IR_left), DetectarMancha, RISING);
+  // Interrupción del sensor drcho
+  attachInterrupt(digitalPinToInterrupt(IR_right), DetectarMancha, RISING);
 }
 
 void loop()
 {
+    
   while (estado)
   {
+
     //  primera vuelta
     DetectarLuz();
     espiral(0, 1);
     calcularDistancia();
-   // DetectarMancha();
-    Pulsador();
+    DetectarMancha();
+    // Pulsador();
 
     // segunda vuelta
-    DetectarLuz();
     espiral(10, 2);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    DetectarLuz();
+    // Pulsador();
+    DetectarMancha();
+
+    /*if(mancha == true)
+{
+  DetectarMancha();
+}    */
+
+// Pulsador();
 
     // tercera vuelta
     DetectarLuz();
     espiral(20, 3);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+
+    if(pulsar == true){
+      Pulsador();
+    }
+
+   DetectarMancha();
 
     // cuarta vuelta
     DetectarLuz();
     espiral(30, 4);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    // Pulsador();
+   DetectarMancha();
 
     // quinta vuelta
     DetectarLuz();
     espiral(40, 5);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    // Pulsador();
+     DetectarMancha();
 
     // sexta vuelta
     DetectarLuz();
     espiral(50, 6);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    // Pulsador();
+     DetectarMancha();
+
+    if(pulsar == true){
+      Pulsador();
+    }
 
     // septima vuelta
     DetectarLuz();
     espiral(60, 7);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    // Pulsador();
+    DetectarMancha();
 
     // octava vuelta
     DetectarLuz();
     espiral(70, 8);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
+    // Pulsador();
+    DetectarMancha();
 
     // última vuelta
     DetectarLuz();
     espiral(80, 9);
     calcularDistancia();
-    Pulsador();
-    // DetectarMancha();
-  }
+    // Pulsador();
+    DetectarMancha();
+
+  
 }
-
-// FORMA SIN PARAMETRIZAR
-/*
-  // gira durante 1 segundo con la rueda izquierda a 400
-  digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera);
-  calcularDistancia();
-
-  // gira durante 2 segundos y la rueda izquierda con 390 de velocidad
-  // digitalWrite(green_led, HIGH);
-  pwm.setPWM(servo_left, 0, longitud_giro-50);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera*15);
-  calcularDistancia();
-
-  // gira durante 3 segundos y la rueda izquierda con 380 de velocidad
-  // digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro-100);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera*50);//100000
-  calcularDistancia();
-
-  // gira durante 4 segundos y la rueda izquierda con 370 de velocidad
-  // digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro-150);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera*100);
-  calcularDistancia();
-
-  // gira durante 5 segundos y la rueda izquierda con 360 de velocidad
-  // digitalWrite(green_led, HIGH); // LED verde encendido
-  pwm.setPWM(servo_left, 0, longitud_giro-200);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  delay(espera*150);
-  //delay(espera*400) 800000 o yo pondria mejor espera*150 = 300.000
-  calcularDistancia();
-
-
-  */
-/*
-      // gira durante 6 segundos y la rueda izquierda con 350 de velocidad
-      // digitalWrite(green_led, HIGH); // LED verde encendido
-      pwm.setPWM(servo_left, 0, 350);
-      pwm.setPWM(servo_right, 0, SERVOMAX);
-      delay(6000);
-
-      // gira durante 7 segundos y la rueda izquierda con 340 de velocidad
-      // digitalWrite(green_led, HIGH); // LED verde encendido
-      pwm.setPWM(servo_left, 0, 340);
-      pwm.setPWM(servo_right, 0, SERVOMAX);
-      delay(7000);
-
-      // gira durante 8 segundos y la rueda izquierda con 330 de velocidad
-      // digitalWrite(green_led, HIGH); // LED verde encendido
-      pwm.setPWM(servo_left, 0, 330);
-      pwm.setPWM(servo_right, 0, SERVOMAX);
-      delay(8000);
-
-      // gira durante 9 segundos y la rueda izquierda con 320 de velocidad
-      // digitalWrite(green_led, HIGH); // LED verde encendido
-      pwm.setPWM(servo_left, 0, 320);
-      pwm.setPWM(servo_right, 0, SERVOMAX);
-      delay(9000);
-    */
-
-/*long distancia = funcion_ultrasonido();
-// if (estado)
-{
-  pwm.setPWM(servo_left, 0, SERVOMIN);
-  pwm.setPWM(servo_right, 0, SERVOMAX);
-  // }
-
-  Serial.println(distancia);
-
-  if (distancia <= 14)
-  {
-    pwm.setPWM(servo_left, 0, SERVOSTOP);
-    pwm.setPWM(servo_right, 0, SERVOSTOP);
-    delay(4000);
-  }*/
-
-// long distancia = funcion_ultrasonido();
-
-/* if (distancia < 14)
- {
-   pwm.setPWM(servo_left, 0, SERVOSTOP);
-   pwm.setPWM(servo_right, 0, SERVOSTOP);
-   delay(4000);
- }
- else
- {*/
+}
