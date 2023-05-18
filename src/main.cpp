@@ -141,6 +141,7 @@ void DetectarLuz(){
 
    int light = analogRead(A0); // Leemos la entrada analógica 0 donde está conectado el sensor de luz izquierdo
    if(light <= 0){
+    Serial.println(light);
     pwm.setPWM(servo_left, 0, SERVOSTOP);
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 2);
