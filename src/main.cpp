@@ -70,7 +70,7 @@ void espiral_inversa(int i, int valor)
 {
   digitalWrite(red_led, HIGH); // LED rojo encendido
 
-  pwm.setPWM(servo_left, 0, SERVOMAX);
+  pwm.setPWM(servo_left, 0, SERVOMIN);
   pwm.setPWM(servo_right, 0, longitudinversa_giro + i);
   delay(espera * valor);
 }
@@ -200,19 +200,12 @@ void calcularDistancia()
     pwm.setPWM(servo_right, 0, SERVOSTOP);
     delay(espera * 3);
 
-    espiral_inversa(50, 6);
+    espiral_inversa(20, 2);
     espiral_inversa(40, 4);
-    espiral_inversa(30, 2);
-    espiral_inversa(20, 1);
+    espiral_inversa(60, 6);
+    espiral_inversa(80, 8);
+    //espiral_inversa(100, 10);
 
-    // primer while espiral normal
-    /* if(estado){
-        estado = false;
-     }*/
-    // segundo while espiral al reves
-    /*if(!estado2){
-        estado2 = true;
-     }*/
   }
 }
 
