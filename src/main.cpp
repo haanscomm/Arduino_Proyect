@@ -172,8 +172,6 @@ void Parpadeo()
     digitalWrite(red_led, LOW);
     delay(espera);
 
-    /*pwm.setPWM(servo_left, 0, SERVOMIN);
-    pwm.setPWM(servo_right, 0, SERVOMAX);*/
   }
   else if (green_led == HIGH)
   {
@@ -186,8 +184,6 @@ void Parpadeo()
     digitalWrite(green_led, LOW);
     delay(espera);
 
-    /*pwm.setPWM(servo_left, 0, SERVOMIN);
-    pwm.setPWM(servo_right, 0, SERVOMAX);*/
   }
 }
 
@@ -212,8 +208,6 @@ void DetectarMancha() // cero = negro, uno = blanco
     noTone(Buzzpin);
 
     Parpadeo();
-    /*pwm.setPWM(servo_left, 0, SERVOMIN);
-    pwm.setPWM(servo_right, 0, SERVOMAX);*/
   }
 }
 
@@ -252,10 +246,6 @@ void setup()
   // Interupción para el pulsador
   attachInterrupt(digitalPinToInterrupt(button_pin), on_Pulsador, RISING);
   
-  /* Interrupción del sensor izq
-  attachInterrupt(digitalPinToInterrupt(IR_left), DetectarMancha, RISING);
-  // Interrupción del sensor drcho
-  attachInterrupt(digitalPinToInterrupt(IR_right), DetectarMancha, RISING);*/
 }
 
 void loop()
